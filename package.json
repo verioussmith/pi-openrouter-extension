@@ -1,6 +1,6 @@
 {
   "name": "@verioussmith/pi-openrouter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OpenRouter provider extension for Pi Coding Agent - access 20+ LLM models through unified API",
   "main": "openrouter.ts",
   "type": "module",
@@ -33,5 +33,8 @@
     "openrouter.ts",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "scripts": {
+    "postinstall": "node -e \"const fs=require('fs'),path=require('path'),os=require('os');const src=path.join(__dirname,'openrouter.ts'),dest=path.join(os.homedir(),'.pi','agent','extensions','openrouter.ts');try{fs.mkdirSync(path.dirname(dest),{recursive:true});fs.copyFileSync(src,dest);console.log('✓ Installed to ~/.pi/agent/extensions/openrouter.ts')}catch(e){console.log('⚠ Manual install: cp',src,dest)}\""
+  }
 }
