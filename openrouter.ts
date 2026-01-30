@@ -1,27 +1,62 @@
 /**
  * OpenRouter Provider Extension
  *
- * Provides access to OpenRouter's unified LLM API.
+ * Dynamically fetches all available models from OpenRouter API.
  * Uses OpenAI-compatible streaming API.
  *
  * Usage:
- *   1. Set OPENROUTER_API_KEY in ~/.zshrc (already done)
+ *   1. Set OPENROUTER_API_KEY in ~/.zshrc
  *   2. Start pi: pi
- *   3. Select model: /model openrouter/anthropic/claude-3.5-sonnet
+ *   3. List models: /model
+ *   4. Select any model: /model openrouter/MODEL_ID
  *
- * Models from: https://openrouter.ai/models
+ * All models from: https://openrouter.ai/api/v1/models
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
-export default function (pi: ExtensionAPI) {
-	pi.registerProvider("openrouter", {
-		baseUrl: "https://openrouter.ai/api/v1",
-		apiKey: "OPENROUTER_API_KEY",
-		authHeader: true, // Adds Authorization: Bearer header
-		api: "openai-completions",
+interface OpenRouterModel {
+	id: string;
+	name: string;
+	pricing: {
+		prompt: string;
+		completion: string;
+	};
+	context_length: number;
+	top_provider?: {
+		max_completion_tokens?: number;
+	};
+}
 
-		models: [
+async function fetchOpenRouterModels() {
+	try {
+		const response = await fetch("https://openrouter.ai/api/v1/models");
+		const data = await response.json();
+		
+		return data.data.map((model: OpenRouterModel) => {
+			const promptCost = parseFloat(model.pricing.prompt) * 1_000_000;
+			const completionCost = parseFloat(model.pricing.completion) * 1_000_000;
+			const isFree = promptCost === 0 && completionCost === 0;
+			
+			return {
+				id: model.id,
+				name: `${model.name}${isFree ? " (Free)" : ""}`,
+				reasoning: model.id.includes("thinking") || model.id.includes("o1") || model.id.includes("r1"),
+				input: ["text", "image"] as ("text" | "image")[],
+				cost: {
+					input: promptCost,
+					output: completionCost,
+					cacheRead: 0,
+					cacheWrite: 0,
+				},
+				contextWindow: model.context_length || 128000,
+				maxTokens: model.top_provider?.max_completion_tokens || 4096,
+			};
+		});
+	} catch (error) {
+		console.error("Failed to fetch OpenRouter models:", error);
+		// Fallback to a few popular models if API fails
+		return [
 			// Anthropic Models
 			{
 				id: "anthropic/claude-3.5-sonnet",
@@ -178,16 +213,27 @@ export default function (pi: ExtensionAPI) {
 				maxTokens: 8192,
 			},
 
-			// Perplexity Models
 			{
-				id: "perplexity/sonar-pro",
-				name: "Sonar Pro (OpenRouter)",
+				id: "google/gemini-2.0-flash-exp:free",
+				name: "Gemini 2.0 Flash (Free)",
 				reasoning: false,
-				input: ["text"],
-				cost: { input: 3, output: 15, cacheRead: 0, cacheWrite: 0 },
-				contextWindow: 200000,
+				input: ["text", "image"],
+				cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+				contextWindow: 1000000,
 				maxTokens: 8192,
 			},
-		],
+		];
+	}
+}
+
+export default async function (pi: ExtensionAPI) {
+	const models = await fetchOpenRouterModels();
+	
+	pi.registerProvider("openrouter", {
+		baseUrl: "https://openrouter.ai/api/v1",
+		apiKey: "OPENROUTER_API_KEY",
+		authHeader: true,
+		api: "openai-completions",
+		models,
 	});
 }
