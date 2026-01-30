@@ -1,32 +1,32 @@
 # Pi OpenRouter Extension
 
+[![npm version](https://badge.fury.io/js/%40verioussmith%2Fpi-openrouter.svg)](https://www.npmjs.com/package/@verioussmith/pi-openrouter)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 OpenRouter provider extension for [Pi Coding Agent](https://github.com/badlogic/pi-mono).
 
 ## Features
 
-- Access 20+ LLM models through OpenRouter's unified API
-- OpenAI-compatible streaming
-- Supports Claude, GPT-4, Gemini, Llama, Mistral, DeepSeek, and more
-- Free models available (Gemini 2.0 Flash)
+- 🚀 Access 20+ LLM models through OpenRouter's unified API
+- 🔄 OpenAI-compatible streaming
+- 🤖 Supports Claude, GPT-4, Gemini, Llama, Mistral, DeepSeek, Perplexity
+- 🆓 Free models available (Gemini 2.0 Flash)
+- 📦 One-command installation via npm
+- ⚡ Auto-installs to `~/.pi/agent/extensions/`
 
 ## Installation
 
-### Global (All Projects)
+### Quick Install (Recommended)
 
 ```bash
-# Copy to global extensions directory
-cp openrouter.ts ~/.pi/agent/extensions/
-
-# Or symlink for development
-ln -s $(pwd)/openrouter.ts ~/.pi/agent/extensions/openrouter.ts
+npm install -g @verioussmith/pi-openrouter
 ```
 
-### Project-Specific
+That's it! The extension automatically installs to `~/.pi/agent/extensions/openrouter.ts`
 
-```bash
-# Copy to project's extensions directory
-cp openrouter.ts /path/to/project/.pi/extensions/
-```
+### Alternative Methods
+
+See [INSTALL.md](INSTALL.md) for manual installation options.
 
 ## Configuration
 
@@ -115,16 +115,35 @@ Costs are in $/million tokens. Check https://openrouter.ai/models for pricing.
 
 ```bash
 # Clone
-git clone https://github.com/philoveracity/pi-openrouter-extension.git
+git clone https://github.com/verioussmith/pi-openrouter-extension.git
 cd pi-openrouter-extension
 
-# Install in Pi
+# Install in Pi (development mode)
 ln -s $(pwd)/openrouter.ts ~/.pi/agent/extensions/openrouter.ts
 
 # Test
 pi
 /model openrouter/google/gemini-2.0-flash-exp:free
 ```
+
+### Publishing Updates
+
+```bash
+# Update version in package.json
+npm version patch  # or minor, major
+
+# Commit and push
+git add . && git commit -m "chore: bump version" && git push
+
+# Publish to npm (requires OTP)
+npm publish --access public --otp=YOUR_OTP
+```
+
+## Package Links
+
+- **npm:** https://www.npmjs.com/package/@verioussmith/pi-openrouter
+- **GitHub:** https://github.com/verioussmith/pi-openrouter-extension
+- **Issues:** https://github.com/verioussmith/pi-openrouter-extension/issues
 
 ## References
 
@@ -133,6 +152,19 @@ pi
 - [OpenRouter API](https://openrouter.ai/docs)
 - [OpenRouter Models](https://openrouter.ai/models)
 
+## Contributing
+
+Contributions welcome! Please:
+1. Fork the repo
+2. Create a feature branch
+3. Submit a pull request
+
+## Author
+
+**Verious Smith** ([@verioussmith](https://github.com/verioussmith))
+- Website: https://philoveracity.com
+- Email: verious@philoveracity.com
+
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE) file for details
